@@ -58,6 +58,10 @@ jobs:
           key: v1 -dependencies-{{ checksum "Gemfile.lock" }}
       - install_bundler
       - run:
+          name: Bundle Install Dependencies
+          command: |
+            bundle install
+      - run:
           name: Execute rubocop
           command: |
             bundle exec rubocop
