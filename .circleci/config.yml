@@ -3,73 +3,74 @@
 version: 2.1
 
 executors:
-  default:
+  default_container:
     docker:
       - image: cimg/ruby:3.1.1
         environment:
           RAILS_ENV: test
+          BUNDLE_JOBS: 4
+          BUNDLE_RETRY: 3
           BUNDLE_PATH: vendor/bundle
           BUNDLER_VERSION: 2.3.11
     working_directory: ~/testrubocopci
-
 commands:
-  configure_bundler:
+  install_bundler:
     description: Bundler install
     steps:
-      - run: gem install bundler -v 2.2.23
+      - run: gem install bundler -v 2.3.11
 
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  build:
-    executor: default
+  fetch_source_code:
+    executor:
+      name: default_container
     steps:
       - checkout
       - save_cache:
           key: v1 -testrubocopci-{{.Environment.CIRCLE_SHA1}}
           paths:
             - ~/testrubocopci
-
   bundle_dependencies:
     executor:
-      name: default
+      name: default_container
     steps:
       - restore_cache:
           key: v1 -testrubocopci-{{ .Environment.CIRCLE_SHA1 }}
       - restore_cache:
-          key: v1 -testrubocopci-{{ checksum "Gemfile.lock" }}
-      - configure_bundler
+          key: v1 -dependencies-{{ checksum "Gemfile.lock" }}
+      - install_bundler
       - run:
           name: Bundle Install Dependencies
           command: |
             bundle install
       - save_cache:
-          key: v1 -testrubocopci-{{ checksum "Gemfile.lock" }}
+          key: v1 -dependencies-{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
-
   rubocop:
-    executor: default
+    executor:
+      name: default_container
     steps:
       - restore_cache:
           key: v1 -testrubocopci-{{ .Environment.CIRCLE_SHA1 }}
       - restore_cache:
-          key: v1 -testrubocopci-{{ checksum "Gemfile.lock" }}
-      - configure_bundler
+          key: v1 -dependencies-{{ checksum "Gemfile.lock" }}
+      - install_bundler
       - run:
-          name: Rubocop
-          command: bundle exec rubocop
+          name: Execute rubocop
+          command: |
+            bundle exec rubocop
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-  version: 2
-  integration:
+  build:
     jobs:
-      - build
+      - fetch_source_code
       - bundle_dependencies:
           requires:
-            - build
+            - fetch_source_code
       - rubocop:
           requires:
             - bundle_dependencies
