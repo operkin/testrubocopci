@@ -6,6 +6,7 @@ executors:
   default:
     docker:
       - image: cimg/ruby:3.1.1
+    working_directory: ~/testrubocopci
 
 commands:
   configure_bundler:
@@ -25,30 +26,36 @@ jobs:
     executor: default
     steps:
       - checkout
-      - configure_bundler
-      - run:
-          name: Install bundle
-          command: bundle install
-      - persist_to_workspace:
-          root: ~/
+      - save_cache:
+          key: v1 -testrubocopci-{{.Environment.CIRCLE_SHA1}}
           paths:
-            - ./
+            - ~/testrubocopci
 
   bundle_dependencies:
     executor:
       name: default
     steps:
+      - restore_cache:
+          key: v1 -testrubocopci-{{ .Environment.CIRCLE_SHA1 }}
+            - restore_cache:
+                key: v1 -dependencies-{{ checksum "Gemfile.lock" }}
       - configure_bundler
       - run:
           name: Bundle Install Dependencies
           command: |
             bundle install
+      - save_cache:
+          key: v1 -dependencies-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
 
   rubocop:
     executor: default
     steps:
-      - attach_workspace:
-          at: ~/
+      - restore_cache:
+          key: v1 -testrubocopci-{{ .Environment.CIRCLE_SHA1 }}
+      - restore_cache:
+          key: v1 -dependencies-{{ checksum "Gemfile.lock" }}
       - configure_bundler
       - run:
           name: Rubocop
