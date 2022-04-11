@@ -1,25 +1,12 @@
+orbs:
+  rubocop: hanachin/rubocop@0.0.6
 version: 2.1
-
-jobs:
-  rubocop:
-    docker:
-      - image: cimg/ruby:3.1.1-node
-    steps:
-      - checkout
-      - run:
-          name: Install Bundler
-          command: |
-            gem install bundler -v 2.3.7
-      - run:
-          name: Bundle Install Dependencies
-          command: |
-            bundle install
-      - run:
-          name: Execute rubocop
-          command: |
-            bundle exec rubocop
-
 workflows:
-  rubocop-workflow:
+  test:
     jobs:
-      - rubocop
+      - rubocop/rubocop:
+          after-install-rubocop:
+            - run: gem install rubocop-performance
+            - run: gem install rubocop-rails
+            - run: gem install rubocop-rspec
+          version: 1.26
