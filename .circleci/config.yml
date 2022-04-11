@@ -6,8 +6,8 @@ executors:
   default:
     working_directory: ~/testrubocopci_postgresql
     docker:
-      - image: cimg/base:stable
-        
+      - image: cimg/ruby:3.1.1
+
 commands:
   configure_bundler:
     description: Configure bundler
