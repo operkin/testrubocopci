@@ -14,14 +14,9 @@ executors:
 
 commands:
   configure_bundler:
-    description: Configure bundler
+    description: Bundler install
     steps:
-      - run:
-          name: Configure bundler
-          command: |
-            echo 'export BUNDLER_VERSION=2.3.11' >> $BASH_ENV
-            source $BASH_ENV
-            gem install bundler -v 2.3.11
+      - run: gem install bundler -v 2.2.23
 
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
