@@ -38,6 +38,10 @@ jobs:
           key: testrubocopci-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - ./
 
   rubocop:
     executor: default
