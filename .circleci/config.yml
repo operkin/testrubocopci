@@ -2,48 +2,90 @@
 # See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
+executors:
+  default:
+    working_directory: ~/testrubocopci_postgresql
+    docker:
+      - image: circleci/ruby:3.1.1
+        environment:
+          BUNDLE_JOBS: 3
+          BUNDLE_PATH: vendor/bundle
+          BUNDLE_RETRY: 3
+          BUNDLER_VERSION: 2.3.11
+          RAILS_ENV: test
+          DB_HOST: 127.0.0.1
+          PG_HOST: 127.0.0.1
+          PGUSER: testrubocopcionrails
+      - image: circleci/postgres:12.0
+        environment:
+          POSTGRES_DB: testrubocopci_postgresql_test
+          POSTGRES_USER: testrubocopcionrails
+
+commands:
+  configure_bundler:
+    description: Configure bundler
+    steps:
+      - run:
+          name: Configure bundler
+          command: |
+            echo 'export BUNDLER_VERSION=$(cat Gemfile.lock | tail -1 | tr -d " ")' >> $BASH_ENV
+            source $BASH_ENV
+            gem install bundler
+
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  say-hello:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
-    docker:
-      - image: cimg/base:stable
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+  build:
+    executor: default
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - testrubocopci-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+            - testrubocopci-
+      - configure_bundler
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+          name: Install bundle
+          command: bundle install
+      - run:
+          name: Wait for DB
+          command: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
+      - run:
+          name: Setup DB
+          command: bundle exec rails db:create db:schema:load --trace
+      - run:
+          name: RSpec
+          command: |
+            bundle exec rspec --profile 10 \
+                              --format progress
+      - store_artifacts:
+          path: coverage
+      - save_cache:
+          key: testrubocopci-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - ./testrubocopci
 
-  ruby-linter:
-    docker:
-      - image: cimg/base:stable
+  rubocop:
+    executor: default
     steps:
-      - uses: actions/checkout@v2
-      - uses: ruby/setup-ruby@v1
-      - uses: actions/cache@v1
-        - with:
-            path: vendor/bundle
-            key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-            ruby-version: 3.0.3
-            restore-keys: |
-              ${{ runner.os }}-gems-
-      - run: |
-          bundle config path vendor/bundle
-          bundle install --jobs 4 --retry 3
-      - run: git fetch origin main
-      - run: bundle exec rubocop
+      - attach_workspace:
+          at: ~/
+      - configure_bundler
+      - run:
+          name: Rubocop
+          command: bundle exec rubocop
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-  say-hello-workflow:
+  version: 2
+  integration:
     jobs:
-      - say-hello
-
-  ruby-linter-workflow:
-    jobs:
-      - ruby-linter
+      - build
+      - rubocop:
+          requires:
+            - build
