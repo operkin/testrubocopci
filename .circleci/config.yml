@@ -4,7 +4,6 @@ jobs:
   rubocop:
     docker:
       - image: cimg/ruby:3.1.1-node
-    working_directory: ~/testrubocopci
     steps:
       - checkout
       - run:
