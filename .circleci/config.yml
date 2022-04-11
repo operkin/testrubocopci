@@ -42,14 +42,14 @@ jobs:
       - restore_cache:
           key: v1 -testrubocopci-{{ .Environment.CIRCLE_SHA1 }}
       - restore_cache:
-          key: v1 -dependencies-{{ checksum "Gemfile.lock" }}
+          key: v1 -testrubocopci-{{ checksum "Gemfile.lock" }}
       - configure_bundler
       - run:
           name: Bundle Install Dependencies
           command: |
             bundle install
       - save_cache:
-          key: v1 -dependencies-{{ checksum "Gemfile.lock" }}
+          key: v1 -testrubocopci-{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
 
@@ -59,7 +59,7 @@ jobs:
       - restore_cache:
           key: v1 -testrubocopci-{{ .Environment.CIRCLE_SHA1 }}
       - restore_cache:
-          key: v1 -dependencies-{{ checksum "Gemfile.lock" }}
+          key: v1 -testrubocopci-{{ checksum "Gemfile.lock" }}
       - configure_bundler
       - run:
           name: Rubocop
