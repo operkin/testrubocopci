@@ -4,7 +4,6 @@ version: 2.1
 
 executors:
   default:
-    working_directory: ~/testrubocopci_postgresql
     docker:
       - image: cimg/ruby:3.1.1
 
@@ -43,6 +42,22 @@ jobs:
           paths:
             - ./
 
+  bundle_dependencies:
+    executor:
+      name: default
+    steps:
+      - restore_cache:
+          key: v1 -dependencies-{{ checksum "Gemfile.lock" }}
+      - install_bundler
+      - run:
+          name: Bundle Install Dependencies
+          command: |
+            bundle install
+      - save_cache:
+          key: v1 -dependencies-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle            
+
   rubocop:
     executor: default
     steps:
@@ -60,6 +75,9 @@ workflows:
   integration:
     jobs:
       - build
-      - rubocop:
+      - bundle_dependencies:
           requires:
             - build
+      - rubocop:
+          requires:
+            - bundle_dependencies
