@@ -10,3 +10,4 @@ workflows:
             - run: gem install rubocop-rails
             - run: gem install rubocop-rspec
           version: 1.26
+          
