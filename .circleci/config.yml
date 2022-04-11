@@ -37,8 +37,8 @@ jobs:
     steps:
       - restore_cache:
           key: v1 -testrubocopci-{{ .Environment.CIRCLE_SHA1 }}
-            - restore_cache:
-                key: v1 -dependencies-{{ checksum "Gemfile.lock" }}
+      - restore_cache:
+          key: v1 -dependencies-{{ checksum "Gemfile.lock" }}
       - configure_bundler
       - run:
           name: Bundle Install Dependencies
