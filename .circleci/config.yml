@@ -9,5 +9,4 @@ workflows:
             - run: gem install rubocop-performance
             - run: gem install rubocop-rails
             - run: gem install rubocop-rspec
-          version: 1.26
-          
+          version: "1.26"
