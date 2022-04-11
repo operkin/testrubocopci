@@ -6,10 +6,7 @@ jobs:
       - image: cimg/ruby:3.1.1-node
     working_directory: ~/testrubocopci
     steps:
-      - restore_cache:
-          key: v1 -testrubocopci-{{ .Environment.CIRCLE_SHA1 }}
-      - restore_cache:
-          key: v1 -dependencies-{{ checksum "Gemfile.lock" }}
+      - checkout
       - run:
           name: Install Bundler
           command: |
