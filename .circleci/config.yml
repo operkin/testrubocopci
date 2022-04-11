@@ -25,18 +25,10 @@ jobs:
     executor: default
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - testrubocopci-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
-            - testrubocopci-
       - configure_bundler
       - run:
           name: Install bundle
           command: bundle install
-      - save_cache:
-          key: testrubocopci-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
-          paths:
-            - vendor/bundle
       - persist_to_workspace:
           root: ~/
           paths:
@@ -46,17 +38,11 @@ jobs:
     executor:
       name: default
     steps:
-      - restore_cache:
-          key: v1 -dependencies-{{ checksum "Gemfile.lock" }}
       - configure_bundler
       - run:
           name: Bundle Install Dependencies
           command: |
             bundle install
-      - save_cache:
-          key: v1 -dependencies-{{ checksum "Gemfile.lock" }}
-          paths:
-            - vendor/bundle
 
   rubocop:
     executor: default
