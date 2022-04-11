@@ -19,10 +19,29 @@ jobs:
           command: "echo Hello, World!"
 
   ruby-linter:
-    docker:
-      - image: cimg/base:stable
+    name: Ruby linter
+    runs-on: ubuntu-latest
     steps:
-      - run: bundle exec rubocop
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+      - name: Ruby gem cache
+        uses: actions/cache@v1
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          ruby-version: 3.0.3
+          restore-keys: |
+            ${{ runner.os }}-gems-
+      - name: Install gems
+        run: |
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3
+      - name: Fetch main
+        run: git fetch origin main
+      - name: Run linter
+        run: bundle exec rubocop
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
