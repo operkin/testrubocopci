@@ -5,19 +5,19 @@ version: 2.1
 executors:
   default_container:
     docker:
-      - image: circleci/ruby:3.1.1-node
+      - image: cimg/ruby:3.1.1-node
         environment:
           RAILS_ENV: test
-          BUNDLE_JOBS: 4
+          BUNDLE_JOBS: 3
           BUNDLE_RETRY: 3
           BUNDLE_PATH: vendor/bundle
-          BUNDLER_VERSION: 2.3.11
+          BUNDLER_VERSION: 2.3.7
     working_directory: ~/testrubocopci
 commands:
   install_bundler:
     description: Bundler install
     steps:
-      - run: gem install bundler -v 2.3.11
+      - run: gem install bundler -v 2.3.7
 
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
