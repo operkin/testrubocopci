@@ -1,9 +1,10 @@
 version: 2.1
 orbs:
   rubocop: hanachin/rubocop@0.0.6
+  node: circleci/node@5.0.2
 
 workflows:
-  test:
+  run_rubocop:
     jobs:
       - rubocop/rubocop:
           after-install-rubocop:
@@ -11,4 +12,14 @@ workflows:
             - run: gem install rubocop-rails
             - run: gem install rubocop-rspec
           version: "1.26"
+
+  run-eslint:
+    jobs:
+      - node/run:
+          yarn-run: es
+
+  run-stylelint:
+    jobs:
+      - node/run:
+          yarn-run: se
 
