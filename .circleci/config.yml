@@ -7,7 +7,7 @@ orbs:
 jobs:
   test:
     docker:
-      - image: cimg/ruby:2.7-node
+      - image: cimg/ruby:3.1.1-node
       - image: cimg/postgres:14.0
         environment:
           POSTGRES_USER: whirl
@@ -67,4 +67,3 @@ workflows:
                 - main
 
       - eslint
-          
