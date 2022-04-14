@@ -42,6 +42,7 @@ group :development, :test do
   gem 'factory_bot_rails', '~> 6.2'
   gem 'pry-rails', '~> 0.3'
   gem 'rspec-rails', '~> 6.0.0.rc1'
+  gem 'rspec_junit_formatter', '~> 0.5.1'
 end
 
 group :development do
