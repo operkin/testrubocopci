@@ -50,9 +50,10 @@ workflows:
   tests_and_linters:
     jobs:
       - test:
-          branches:
-            ignore:
-              - main
+          filters:
+            branches:
+              ignore:
+                - main
 
       - rubocop/rubocop:
           after-install-rubocop:
@@ -60,8 +61,13 @@ workflows:
             - run: gem install rubocop-rails
             - run: gem install rubocop-rspec
           version: "1.26"
-          branches:
-            ignore:
-              - main
+          filters:
+            branches:
+              ignore:
+                - main
 
       - eslint
+          filters:
+            branches:
+              ignore:
+                - main
