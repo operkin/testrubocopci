@@ -49,17 +49,14 @@ jobs:
 workflows:
   tests_and_linters:
     jobs:
-      - test:
+      - checking-branch-job:
           filters:
             branches:
               ignore:
                 - main
-
-      - eslint
-          filters:
-            branches:
-              ignore:
-                - main    
+      - test:
+          requires:
+            - checking-branch-job
 
       - rubocop/rubocop:
           after-install-rubocop:
@@ -67,8 +64,9 @@ workflows:
             - run: gem install rubocop-rails
             - run: gem install rubocop-rspec
           version: "1.26"
-          filters:
-            branches:
-              ignore:
-                - main
+          requires:
+            - checking-branch-job
 
+      - eslint:
+          requires:
+            - checking-branch-job
