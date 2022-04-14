@@ -65,6 +65,3 @@ workflows:
               - main
 
       - eslint
-          branches:
-            ignore:
-              - main
