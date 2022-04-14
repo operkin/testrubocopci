@@ -55,6 +55,12 @@ workflows:
               ignore:
                 - main
 
+      - eslint
+          filters:
+            branches:
+              ignore:
+                - main    
+
       - rubocop/rubocop:
           after-install-rubocop:
             - run: gem install rubocop-performance
@@ -66,8 +72,3 @@ workflows:
               ignore:
                 - main
 
-      - eslint
-          filters:
-            branches:
-              ignore:
-                - main
