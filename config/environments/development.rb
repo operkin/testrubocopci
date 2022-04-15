@@ -47,7 +47,7 @@ Rails.application.configure do
   # Tell Active Support which deprecation messages to disallow.
   config.active_support.disallowed_deprecation_warnings = []
 
-  # Raise an error on page load if there are pending migrations.
+  # Raise an error on page load if there are pending migrate.
   config.active_record.migration_error = :page_load
 
   # Highlight code that triggered database queries in logs.
